@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS portfolio (
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+
 -- 4. Create the 'orders' table
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -30,6 +31,7 @@ VALUES
 ('AAPL', 100, 150.00),
 ('GOOGL', 50, 2800.50),
 ('TSLA', 30, 700.75);
+
 
 -- 6. Insert dummy values into 'orders'
 INSERT INTO orders (stock_ticker, volume, price_of_buying, buy_sell, status_code)
