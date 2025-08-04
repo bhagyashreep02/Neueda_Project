@@ -1,0 +1,58 @@
+1) portfolio 
+	-id
+	-stock_ticker
+	-volume
+	-price_of_buying
+	-timestamp
+
+
+2) trading (can be a hash map)
+	-id
+	-stock_ticker
+	-volume_to_trade
+	-buy_sell (flag to signify the operation- 0/1)
+	-price_of_action (price at which he wants to buy or sell)
+
+
+3) orders (table used for logging)
+	-id
+	-stock_ticker
+	-volume
+	-price_of_buying
+	-buy_sell
+	-status_code
+	-time_stamp
+
+
+
+ER code:
+
+erDiagram
+    portfolio {
+        int id PK
+        varchar stock_ticker
+        int volume
+        decimal price_of_buying
+        timestamp timestamp
+    }
+
+    trading {
+        int id PK
+        varchar stock_ticker
+        int volume_to_trade
+        int buy_sell "0:sell, 1:buy"
+        decimal price_of_action
+    }
+
+    orders {
+        int id PK
+        varchar stock_ticker
+        int volume
+        decimal price_of_buying
+        int buy_sell "0:sell, 1:buy"
+        int status_code
+        timestamp time_stamp
+    }
+
+    portfolio ||--o{ trading : has
+    trading ||--o{ orders : logs
