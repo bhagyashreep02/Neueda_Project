@@ -24,8 +24,7 @@ public class OrdersController {
     private OrdersService ordersService;
     
     @GetMapping
-    public List<Orders> ordersPage(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                            Model model) {
+    public List<Orders> ordersPage(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, Model model) {
         List<Orders> orders;
         if (date != null) {
             orders = ordersService.getOrdersByDate(date);

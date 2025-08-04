@@ -30,7 +30,6 @@ public class Orders {
     @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
     
-    // Constructors
     public Orders() {}
     
     public Orders(String stockTicker, Integer volume, BigDecimal priceOfBuying, 
@@ -42,8 +41,8 @@ public class Orders {
         this.statusCode = statusCode;
         this.timestamp = timestamp;
     }
-    
-    // Getters and Setters
+ 
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
