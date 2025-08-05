@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class StockFetcherService {
 
-    private static final String API_KEY = "YOUR_API_KEY_HERE";
+    private static final String API_KEY = "U9ZBUSNS80VKYHE2";
     private static final OkHttpClient client = new OkHttpClient();
 
     public Double getStockPrice(String symbol) {

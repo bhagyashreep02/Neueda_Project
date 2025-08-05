@@ -1,6 +1,7 @@
 // src/main/java/com/portfolio/service/WatchListService.java
 package com.sj.springboot.rest_api.service;
 
+import com.sj.springboot.rest_api.controller.StockFetcherService;
 import com.sj.springboot.rest_api.entity.WatchList;
 import com.sj.springboot.rest_api.repository.WatchListRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import java.util.List;
 @Transactional
 public class WatchListService {
 
+    @Autowired
+    private StockFetcherService stockFetcher;
 
     @Autowired
     private WatchListRepository watchListRepository;

@@ -16,6 +16,9 @@ public class WatchList {
     
     @Column(name = "added_date", nullable = false)
     private LocalDateTime addedDate;
+
+    @Column(name = "current_price", nullable = false)
+    private Double current_price;
     
     // Constructors
     public WatchList() {}
@@ -23,6 +26,7 @@ public class WatchList {
     public WatchList(String stockTicker, LocalDateTime addedDate) {
         this.stockTicker = stockTicker;
         this.addedDate = addedDate;
+        // this.current_price = current_price;
     }
     
     // Getters and Setters
