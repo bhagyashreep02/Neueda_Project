@@ -12,7 +12,8 @@ import java.util.List;
 @Service
 @Transactional
 public class WatchListService {
-    
+
+
     @Autowired
     private WatchListRepository watchListRepository;
     

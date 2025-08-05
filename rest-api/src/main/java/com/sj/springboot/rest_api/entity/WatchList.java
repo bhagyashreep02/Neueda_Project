@@ -34,4 +34,19 @@ public class WatchList {
     
     public LocalDateTime getAddedDate() { return addedDate; }
     public void setAddedDate(LocalDateTime addedDate) { this.addedDate = addedDate; }
+
+    // public void setStockName(Object name) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'setStockName'");
+    // }
+
+    // public void setCurrentPrice(Object price) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'setCurrentPrice'");
+    // }
+
+    // public void setCurrency(Object currency) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'setCurrency'");
+    // }
 }

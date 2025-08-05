@@ -14,9 +14,7 @@ public class PortfolioSummary {
     // Constructors
     public PortfolioSummary() {}
     
-    public PortfolioSummary(Map<String, Integer> currentHoldings, BigDecimal totalGain, 
-                           BigDecimal currentMarketValue, BigDecimal portfolioValue, 
-                           BigDecimal portfolioPerformance) {
+    public PortfolioSummary(Map<String, Integer> currentHoldings, BigDecimal totalGain,  BigDecimal currentMarketValue, BigDecimal portfolioValue,  BigDecimal portfolioPerformance) {
         this.currentHoldings = currentHoldings;
         this.totalGain = totalGain;
         this.currentMarketValue = currentMarketValue;
@@ -39,4 +37,5 @@ public class PortfolioSummary {
     
     public BigDecimal getPortfolioPerformance() { return portfolioPerformance; }
     public void setPortfolioPerformance(BigDecimal portfolioPerformance) { this.portfolioPerformance = portfolioPerformance; }
+    
 }
