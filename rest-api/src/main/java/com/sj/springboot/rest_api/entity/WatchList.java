@@ -23,10 +23,10 @@ public class WatchList {
     // Constructors
     public WatchList() {}
     
-    public WatchList(String stockTicker, LocalDateTime addedDate) {
+    public WatchList(String stockTicker, LocalDateTime addedDate, Double current_price) {
         this.stockTicker = stockTicker;
         this.addedDate = addedDate;
-        // this.current_price = current_price;
+        this.current_price = current_price;
     }
     
     // Getters and Setters

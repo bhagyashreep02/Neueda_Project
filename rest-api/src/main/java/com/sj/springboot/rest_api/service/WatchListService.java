@@ -26,7 +26,7 @@ public class WatchListService {
     
     public void addToWatchList(String ticker, Double price) {
         if (!watchListRepository.existsByStockTicker(ticker)) {
-            WatchList watchList = new WatchList(ticker, LocalDateTime.now());
+            WatchList watchList = new WatchList(ticker, LocalDateTime.now(), stockFetcher.getStockPrice(ticker));
             watchListRepository.save(watchList);
         }
     }
