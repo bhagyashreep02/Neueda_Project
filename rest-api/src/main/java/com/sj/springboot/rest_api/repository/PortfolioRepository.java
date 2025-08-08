@@ -22,8 +22,10 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     Optional<Portfolio> findFirstByStockTicker(String stockTicker);
 
     // 🔹 NEW: Check total quantity for a ticker
-    @Query("SELECT SUM(p.volume) FROM Portfolio p WHERE p.stockTicker = :stockTicker")
-    Integer getTotalVolumeForTicker(String stockTicker);
+    // PortfolioRepository.java
+    @Query("SELECT COALESCE(SUM(p.volume), 0) FROM Portfolio p WHERE p.stockTicker = :stockTicker")
+    Long getTotalVolumeForTicker(String stockTicker);
+
 
     // 🔹 NEW: Get total investment value (optional)
     @Query("SELECT SUM(p.priceOfBuying * p.volume) FROM Portfolio p")

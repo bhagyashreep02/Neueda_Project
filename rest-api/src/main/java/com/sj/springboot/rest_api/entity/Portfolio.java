@@ -20,7 +20,7 @@ public class Portfolio {
     @Column(name = "volume", nullable = false)
     private Integer volume;
 
-    @Column(name = "price_of_buying", nullable = false, precision = 10, scale = 2)
+    @Column(name = "price_of_buying", precision = 19, scale = 4)
     private BigDecimal priceOfBuying;
 
     @Column(name = "timestamp", nullable = false)

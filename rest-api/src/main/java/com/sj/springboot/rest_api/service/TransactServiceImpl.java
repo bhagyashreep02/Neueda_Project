@@ -30,6 +30,7 @@ public class TransactServiceImpl implements TransactService {
     private PortfolioRepository portfolioRepository;
 
     @Override
+    @Transactional
     public TransactResponse execute(TransactRequest request) {
         PendingOrder order = new PendingOrder();
         order.setTicker(request.getTicker());

@@ -15,7 +15,7 @@ public class PendingOrder {
 
     private String ticker;
     private String type; // BUY or SELL
-    private Double targetPrice;
+    private BigDecimal targetPrice;
     private Integer quantity;
 
     @Enumerated(EnumType.STRING)
@@ -25,9 +25,9 @@ public class PendingOrder {
     private LocalDateTime executedAt;
 
     // Optional: for SELL orders after execution
-    private Double executedPrice;
-    private Double profit;
-    private Double profitPercentage;
+    private BigDecimal  executedPrice;
+    private BigDecimal  profit;
+    private BigDecimal  profitPercentage;
 
     // getters and setters
 }
