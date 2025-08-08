@@ -19,6 +19,8 @@
         <java.version>21</java.version>
     </properties>
 
+	
+
     <dependencies>
         <!-- Spring Boot Web -->
         <dependency>
@@ -99,23 +101,24 @@
             <scope>test</scope>
         </dependency>
 
-		 <!-- Smile core -->
+		 <!-- Spring Boot web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.haifengl</groupId>
-			<artifactId>smile-core</artifactId>
-			<version>3.0.2</version>
+			<groupId>org.deeplearning4j</groupId>
+			<artifactId>deeplearning4j-core</artifactId>
+			<version>1.0.0-M2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.nd4j</groupId>
+			<artifactId>nd4j-native-platform</artifactId>
+			<version>1.0.0-M2.1</version>
 		</dependency>
 
-		<!-- <dependency>
-			<groupId>com.github.haifengl</groupId>
-			<artifactId>smile-regression</artifactId>
-			<version>3.0.2</version>
-		</dependency> -->
+		
     </dependencies>
 
     <build>
