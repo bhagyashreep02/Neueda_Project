@@ -6,53 +6,37 @@ import java.time.LocalDateTime;
 import org.nd4j.linalg.cpu.nativecpu.bindings.Nd4jCpu.absolute_difference_loss;
 
 public class TransactResponse {
-    private Long orderId;
-    private Integer statusCode;      // 1=success, 2=failed
-    private LocalDateTime executedAt;
 
-    // Only populated for SELL:
+    private int statusCode;
+    private String message;
+    private Long orderId;
+    private LocalDateTime executedAt;
     private Double profitPrice;
     private Double profitPercentage;
 
-    // getters & setters
+    public TransactResponse() {}
 
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
-    public Integer getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(Integer statusCode) {
+    public TransactResponse(int statusCode, String message) {
         this.statusCode = statusCode;
+        this.message = message;
     }
 
-    public LocalDateTime getExecutedAt() {
-        return executedAt;
-    }
+    // getters/setters
+    public int getStatusCode() { return statusCode; }
+    public void setStatusCode(int statusCode) { this.statusCode = statusCode; }
 
-    public void setExecutedAt(LocalDateTime executedAt) {
-        this.executedAt = executedAt;
-    }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
 
-    public Double getProfitPrice() {
-        return profitPrice;
-    }
+    public Long getOrderId() { return orderId; }
+    public void setOrderId(Long orderId) { this.orderId = orderId; }
 
-    public void setProfitPrice(Double profitPrice) {
-        this.profitPrice = profitPrice;
-    }
+    public LocalDateTime getExecutedAt() { return executedAt; }
+    public void setExecutedAt(LocalDateTime executedAt) { this.executedAt = executedAt; }
 
-    public Double getProfitPercentage() {
-        return profitPercentage;
-    }
+    public Double getProfitPrice() { return profitPrice; }
+    public void setProfitPrice(Double profitPrice) { this.profitPrice = profitPrice; }
 
-    public void setProfitPercentage(Double profitPercentage) {
-        this.profitPercentage = profitPercentage;
-    }
+    public Double getProfitPercentage() { return profitPercentage; }
+    public void setProfitPercentage(Double profitPercentage) { this.profitPercentage = profitPercentage; }
 }

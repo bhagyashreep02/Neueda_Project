@@ -6,6 +6,7 @@ import com.sj.springboot.rest_api.dto.TransactResponse;
 import com.sj.springboot.rest_api.service.TransactService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,9 +36,12 @@ public class TransactController {
      *         - profitPrice & profitPercentage (only for SELL)
      */
     @PostMapping
-    public ResponseEntity<TransactResponse> transact(
-            @Valid @RequestBody TransactRequest request) {
+    public ResponseEntity<TransactResponse> transact(@RequestBody TransactRequest request) {
         TransactResponse response = transactService.execute(request);
+
+        if (response.getStatusCode() == 2) { // Example: insufficient shares
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
         return ResponseEntity.ok(response);
     }
 }

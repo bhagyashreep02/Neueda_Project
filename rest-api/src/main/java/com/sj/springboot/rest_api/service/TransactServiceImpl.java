@@ -46,7 +46,7 @@ public class TransactServiceImpl implements TransactService {
         BigDecimal price  = BigDecimal.valueOf(req.getPrice());
         boolean isBuy = "BUY".equalsIgnoreCase(req.getAction());
 
-        // 1️⃣ Load the latest Portfolio entry for this ticker, or create new
+        // Load latest or create
         List<Portfolio> history = portfolioRepo.findByStockTicker(ticker);
         Portfolio port = history.stream()
                 .max(Comparator.comparing(Portfolio::getTimestamp))
@@ -57,29 +57,27 @@ public class TransactServiceImpl implements TransactService {
         String statusCode;
 
         if (isBuy) {
-            // BUY: use Portfolio business logic to add shares
             port.addShares(qty, price);
             statusCode = "1"; // success
         } else {
-            // SELL: verify enough shares
             if (!port.hasEnoughShares(qty)) {
                 statusCode = "2"; // failed
             } else {
-                // calculate profit via helper
                 profitPrice = port.getProfitIfSold(price, qty);
                 BigDecimal costBasis = port.getPriceOfBuying().multiply(BigDecimal.valueOf(qty));
-                profitPercentage = profitPrice
-                        .divide(costBasis, 4, BigDecimal.ROUND_HALF_UP)
-                        .multiply(BigDecimal.valueOf(100));
+                profitPercentage = costBasis.compareTo(BigDecimal.ZERO) == 0 ?
+                        BigDecimal.ZERO :
+                        profitPrice.divide(costBasis, 4, java.math.RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
                 port.reduceShares(qty);
                 statusCode = "1"; // success
             }
         }
-        // update timestamp and persist portfolio snapshot
+
+        // persist portfolio snapshot
         port.setTimestamp(LocalDateTime.now());
         portfolioRepo.save(port);
 
-        // 2️⃣ Log the trade
+        // Trading log
         Trading trade = new Trading();
         trade.setStockTicker(ticker);
         trade.setVolumeToTrade(qty);
@@ -87,7 +85,7 @@ public class TransactServiceImpl implements TransactService {
         trade.setPriceOfAction(price);
         tradingRepo.save(trade);
 
-        // 3️⃣ Persist the order
+        // Persist order
         Orders order = new Orders(
                 ticker,
                 qty,
@@ -98,20 +96,17 @@ public class TransactServiceImpl implements TransactService {
         );
         Orders savedOrder = ordersRepo.save(order);
 
-        // 4️⃣ Build response
+        // Build response
         TransactResponse resp = new TransactResponse();
         resp.setOrderId(savedOrder.getId());
         resp.setStatusCode(Integer.parseInt(statusCode));
         resp.setExecutedAt(savedOrder.getTimestamp());
 
-        Double price_to_sub = stockFetcherService.getStockPrice(ticker);
-
-        // BigDecimal result = price_to_sub.subtract(profitPrice);
-
         if (!isBuy && "1".equals(statusCode)) {
             resp.setProfitPrice(profitPrice.doubleValue());
             resp.setProfitPercentage(profitPercentage.doubleValue());
         }
+
         return resp;
     }
 }

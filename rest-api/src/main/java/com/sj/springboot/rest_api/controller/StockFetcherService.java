@@ -7,33 +7,53 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+
 @Service
 public class StockFetcherService {
 
-    private static final String API_KEY = "U9ZBUSNS80VKYHE2";
-    private static final OkHttpClient client = new OkHttpClient();
+    private static final Logger log = LoggerFactory.getLogger(StockFetcherService.class);
 
+    private final OkHttpClient client = new OkHttpClient();
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @Value("${alphavantage.api.key}")
+    private String apiKey;
+
+    /**
+     * Returns the current stock price from AlphaVantage (GLOBAL_QUOTE) or null on error.
+     * Note: returns Double to match current TransactServiceImpl usage.
+     */
     public Double getStockPrice(String symbol) {
-        String url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=" + symbol +
-                "&apikey=" + API_KEY;
+        if (symbol == null || symbol.isBlank()) return null;
+        try {
+            String url = String.format(
+                    "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=%s&apikey=%s",
+                    symbol, apiKey
+            );
 
-        Request request = new Request.Builder().url(url).build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                System.out.println("API request failed: " + response.code());
-                return null;
+            Request request = new Request.Builder().url(url).build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.warn("AlphaVantage request failed: code {}", response.code());
+                    return null;
+                }
+                String body = response.body() != null ? response.body().string() : null;
+                if (body == null) return null;
+                JsonNode root = mapper.readTree(body);
+                JsonNode quote = root.path("Global Quote");
+                if (quote.isMissingNode() || quote.size() == 0) {
+                    log.warn("AlphaVantage returned no Global Quote for {}: {}", symbol, body);
+                    return null;
+                }
+                String priceStr = quote.path("05. price").asText(null);
+                if (priceStr == null) return null;
+                return Double.valueOf(priceStr);
             }
-
-            String responseBody = response.body().string();
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(responseBody);
-
-            String price = root.path("Global Quote").path("05. price").asText();
-            return price.isEmpty() ? null : Double.parseDouble(price);
-
         } catch (Exception e) {
-            System.out.println("Error fetching stock price: " + e.getMessage());
+            log.error("Error fetching price for {}: {}", symbol, e.getMessage());
             return null;
         }
     }
