@@ -1,0 +1,34 @@
+'/'
+landing page
+directly on the portfolio
+1. current holdings 
+2. total gain
+3. current market
+4. portfolio value
+5. portfolio performance
+
+
+'/transact'
+buy and sell
+1. buy stock
+    1.1 ticker
+    1.2 quantity
+    1.3 price
+    
+2. sell stock
+    2.1 ticker
+    2.2 quantity
+    2.3 price
+    2.4 profit price/percentage(?)
+
+
+'/orders'
+pending orders for that day 
+logs of all orders for that day
+add a filter for orders by date
+
+
+'/watch-list'
+add stocks to watch list (passive monitoring) 
+
+
