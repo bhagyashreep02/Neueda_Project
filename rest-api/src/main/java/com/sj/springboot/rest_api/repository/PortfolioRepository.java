@@ -31,6 +31,8 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     @Query("SELECT SUM(p.priceOfBuying * p.volume) FROM Portfolio p")
     BigDecimal getTotalInvestmentValue();
 
+    Optional<Portfolio> findByTicker(String ticker);
+
     // 🔹 NEW: Delete all holdings for a ticker (used when selling all shares)
     void deleteByStockTicker(String stockTicker);
 }

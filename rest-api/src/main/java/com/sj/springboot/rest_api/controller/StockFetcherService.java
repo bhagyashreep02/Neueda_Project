@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Service
 public class StockFetcherService {
 
-    private static final Logger log = LoggerFactory.getLogger(StockFetcherService.class);
+    public static final Logger log = LoggerFactory.getLogger(StockFetcherService.class);
 
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();

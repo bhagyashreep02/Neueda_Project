@@ -1,24 +1,23 @@
-// TransactRequest.java
 package com.sj.springboot.rest_api.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 public class TransactRequest {
-    @NotBlank
+
     private String ticker;
+    private int quantity;
+    private BigDecimal price;
+    private String type; // e.g., "BUY" or "SELL"
 
-    @NotNull @Min(1)
-    private Integer quantity;
+    public TransactRequest() {
+    }
 
-    @NotNull @Min(0)
-    private Double price;
-
-    @NotBlank
-    private String action;  // "BUY" or "SELL"
-
-    // getters & setters
+    public TransactRequest(String ticker, int quantity, BigDecimal price, String type) {
+        this.ticker = ticker;
+        this.quantity = quantity;
+        this.price = price;
+        this.type = type;
+    }
 
     public String getTicker() {
         return ticker;
@@ -28,27 +27,37 @@ public class TransactRequest {
         this.ticker = ticker;
     }
 
-    public Integer getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public String getAction() {
-        return action;
+    public String getType() {
+        return type;
     }
 
-    public void setAction(String action) {
-        this.action = action;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "TransactRequest{" +
+                "ticker='" + ticker + '\'' +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                ", type='" + type + '\'' +
+                '}';
     }
 }

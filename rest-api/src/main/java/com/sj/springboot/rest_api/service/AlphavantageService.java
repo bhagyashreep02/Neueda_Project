@@ -7,10 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,32 +26,52 @@ public class AlphavantageService {
 
     /**
      * Returns last N days' "open" prices for the ticker (most recent first).
-     * If API fails or data missing, returns an empty list.
+     * Returns an empty list if API fails or data is missing.
      */
     public List<Double> getLastNDaysOpenPrices(String ticker, int days) {
-        if (ticker == null || ticker.isBlank() || days <= 0) return Collections.emptyList();
+        if (ticker == null || ticker.isBlank() || days <= 0) {
+            log.warn("Invalid parameters: ticker='{}', days={}", ticker, days);
+            return Collections.emptyList();
+        }
+
         try {
             String url = String.format(
                     "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=%s&outputsize=compact&apikey=%s",
-                    ticker, apiKey
+                    ticker.trim().toUpperCase(), apiKey
             );
 
             Request req = new Request.Builder().url(url).build();
             try (Response resp = client.newCall(req).execute()) {
                 if (!resp.isSuccessful()) {
-                    log.warn("AlphaVantage timeseries failed: code {}", resp.code());
-                    return Collections.emptyList();
-                }
-                String body = resp.body() != null ? resp.body().string() : null;
-                if (body == null) return Collections.emptyList();
-                JsonNode root = mapper.readTree(body);
-                JsonNode ts = root.path("Time Series (Daily)");
-                if (ts.isMissingNode()) {
-                    log.warn("AlphaVantage returned no Time Series for {}: {}", ticker, body);
+                    log.warn("AlphaVantage request failed [{}]: {}", resp.code(), resp.message());
                     return Collections.emptyList();
                 }
 
-                // collect dates, sort descending (latest first)
+                String body = resp.body() != null ? resp.body().string() : null;
+                if (body == null || body.isBlank()) {
+                    log.warn("AlphaVantage returned empty body for ticker {}", ticker);
+                    return Collections.emptyList();
+                }
+
+                JsonNode root = mapper.readTree(body);
+
+                // Handle API limit / note / error messages
+                if (root.has("Note")) {
+                    log.warn("AlphaVantage API limit reached: {}", root.path("Note").asText());
+                    return Collections.emptyList();
+                }
+                if (root.has("Error Message")) {
+                    log.warn("AlphaVantage error for {}: {}", ticker, root.path("Error Message").asText());
+                    return Collections.emptyList();
+                }
+
+                JsonNode ts = root.path("Time Series (Daily)");
+                if (ts.isMissingNode() || !ts.fieldNames().hasNext()) {
+                    log.warn("No time series data for ticker {}. Full response: {}", ticker, body);
+                    return Collections.emptyList();
+                }
+
+                // Sort dates in reverse order (latest first)
                 List<String> dates = new ArrayList<>();
                 ts.fieldNames().forEachRemaining(dates::add);
                 dates.sort(Comparator.reverseOrder());
@@ -61,19 +79,20 @@ public class AlphavantageService {
                 return dates.stream()
                         .limit(days)
                         .map(d -> {
-                            JsonNode record = ts.path(d);
-                            String open = record.path("1. open").asText(null);
+                            String openStr = ts.path(d).path("1. open").asText(null);
                             try {
-                                return open != null ? Double.valueOf(open) : null;
+                                return openStr != null ? Double.valueOf(openStr) : null;
                             } catch (NumberFormatException ex) {
+                                log.warn("Invalid number format for date {}: {}", d, openStr);
                                 return null;
                             }
                         })
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
+
             }
         } catch (Exception e) {
-            log.error("Error fetching last N days open prices for {}: {}", ticker, e.getMessage());
+            log.error("Error fetching last N days open prices for {}: {}", ticker, e.getMessage(), e);
             return Collections.emptyList();
         }
     }

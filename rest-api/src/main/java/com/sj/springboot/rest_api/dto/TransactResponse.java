@@ -1,42 +1,91 @@
-
 package com.sj.springboot.rest_api.dto;
-import com.sj.springboot.rest_api.controller.StockFetcherService;
-import java.time.LocalDateTime;
 
-import org.nd4j.linalg.cpu.nativecpu.bindings.Nd4jCpu.absolute_difference_loss;
+import java.math.BigDecimal;
 
 public class TransactResponse {
 
     private int statusCode;
     private String message;
-    private Long orderId;
-    private LocalDateTime executedAt;
-    private Double profitPrice;
-    private Double profitPercentage;
+    private Long transactionId;
+    private String ticker;
+    private Integer quantity;
+    private BigDecimal price;
 
-    public TransactResponse() {}
+    public TransactResponse() {
+    }
 
     public TransactResponse(int statusCode, String message) {
         this.statusCode = statusCode;
         this.message = message;
     }
 
-    // getters/setters
-    public int getStatusCode() { return statusCode; }
-    public void setStatusCode(int statusCode) { this.statusCode = statusCode; }
+    public TransactResponse(int statusCode, String message, Long transactionId,
+                            String ticker, Integer quantity, BigDecimal price) {
+        this.statusCode = statusCode;
+        this.message = message;
+        this.transactionId = transactionId;
+        this.ticker = ticker;
+        this.quantity = quantity;
+        this.price = price;
+    }
 
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+    public int getStatusCode() {
+        return statusCode;
+    }
 
-    public Long getOrderId() { return orderId; }
-    public void setOrderId(Long orderId) { this.orderId = orderId; }
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
 
-    public LocalDateTime getExecutedAt() { return executedAt; }
-    public void setExecutedAt(LocalDateTime executedAt) { this.executedAt = executedAt; }
+    public String getMessage() {
+        return message;
+    }
 
-    public Double getProfitPrice() { return profitPrice; }
-    public void setProfitPrice(Double profitPrice) { this.profitPrice = profitPrice; }
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-    public Double getProfitPercentage() { return profitPercentage; }
-    public void setProfitPercentage(Double profitPercentage) { this.profitPercentage = profitPercentage; }
+    public Long getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public String getTicker() {
+        return ticker;
+    }
+
+    public void setTicker(String ticker) {
+        this.ticker = ticker;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    @Override
+    public String toString() {
+        return "TransactResponse{" +
+                "statusCode=" + statusCode +
+                ", message='" + message + '\'' +
+                ", transactionId=" + transactionId +
+                ", ticker='" + ticker + '\'' +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                '}';
+    }
 }

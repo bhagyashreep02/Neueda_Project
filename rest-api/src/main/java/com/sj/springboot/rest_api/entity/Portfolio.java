@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 @Entity
 @Table(name = "portfolio")
@@ -170,4 +171,18 @@ public class Portfolio {
             throw new IllegalStateException("Portfolio entity is in invalid state");
         }
     }
+    public Integer getQuantity() {
+        return this.volume;
+    }
+    public void setQuantity(Integer quantity) {
+        this.volume = quantity;
+    }
+    public String getTicker() {
+        return this.stockTicker;
+    }
+    public void setTicker(String ticker) {
+        this.stockTicker = ticker;
+    }
+
+
 }

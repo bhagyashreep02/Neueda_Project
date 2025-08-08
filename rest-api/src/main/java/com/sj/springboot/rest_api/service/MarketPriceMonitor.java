@@ -1,87 +1,51 @@
 package com.sj.springboot.rest_api.service;
 
-import com.sj.springboot.rest_api.entity.OrderStatus;
-import com.sj.springboot.rest_api.entity.Orders;
-import com.sj.springboot.rest_api.entity.PendingOrder;
-import com.sj.springboot.rest_api.entity.Portfolio;
-import com.sj.springboot.rest_api.repository.OrdersRepository;
-import com.sj.springboot.rest_api.repository.PendingOrderRepository;
-import com.sj.springboot.rest_api.repository.PortfolioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
 import java.util.List;
 
-
-@Service
+@Component
 public class MarketPriceMonitor {
 
-    @Autowired
-    private PendingOrderRepository pendingOrderRepository;
+    private static final Logger log = LoggerFactory.getLogger(MarketPriceMonitor.class);
 
-    @Autowired
-    private PortfolioRepository portfolioRepository;
+    private final AlphavantageService alphavantageService;
 
-    @Autowired
-    private AlphavantageService stockPriceService; // you should already have this
+    // Configure tickers to monitor
+    private final List<String> tickers = Arrays.asList("AAPL", "MSFT", "GOOGL");
 
-    @Scheduled(fixedRate = 10000) // every 10 seconds
-    public void checkOrders() {
-        List<PendingOrder> pendingOrders = pendingOrderRepository.findByStatus(OrderStatus.PENDING);
+    public MarketPriceMonitor(AlphavantageService alphavantageService) {
+        this.alphavantageService = alphavantageService;
+    }
 
-        for (PendingOrder order : pendingOrders) {
-            double marketPrice = stockPriceService.getLivePrice(order.getTicker());
+    /**
+     * Scheduled to run every hour (adjust as needed)
+     */
+    @Scheduled(fixedRate = 60_000) // every 60 sec for testing
+    public void checkPrices() {
+        log.info("Running Market Price Monitor...");
 
-            if ("BUY".equalsIgnoreCase(order.getType()) && marketPrice <= order.getTargetPrice()) {
-                executeBuy(order, marketPrice);
-            } else if ("SELL".equalsIgnoreCase(order.getType()) && marketPrice >= order.getTargetPrice()) {
-                executeSell(order, marketPrice);
+        for (String ticker : tickers) {
+            try {
+                List<Double> prices = alphavantageService.getLastNDaysOpenPrices(ticker, 5);
+
+                if (prices.isEmpty()) {
+                    log.warn("No price data available for {}", ticker);
+                    continue;
+                }
+
+                double latestPrice = prices.get(0);
+                double avgPrice = prices.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+
+                log.info("Ticker: {} | Latest Price: {} | 5-day Avg: {}", ticker, latestPrice, avgPrice);
+
+            } catch (Exception e) {
+                log.error("Error processing ticker {}: {}", ticker, e.getMessage(), e);
             }
         }
-    }
-
-    private void executeBuy(PendingOrder order, double executedPrice) {
-        Portfolio portfolio = portfolioRepository.findByTicker(order.getTicker())
-                .orElse(new Portfolio());
-
-        portfolio.setTicker(order.getTicker());
-        portfolio.setBuyPrice(executedPrice);
-        portfolio.setQuantity(portfolio.getQuantity() == null ? order.getQuantity() :
-                portfolio.getQuantity() + order.getQuantity());
-        portfolio.setBuyDate(LocalDateTime.now());
-
-        portfolioRepository.save(portfolio);
-
-        order.setStatus(OrderStatus.EXECUTED);
-        order.setExecutedAt(LocalDateTime.now());
-        order.setExecutedPrice(executedPrice);
-        pendingOrderRepository.save(order);
-    }
-
-    private void executeSell(PendingOrder order, double executedPrice) {
-        Portfolio portfolio = portfolioRepository.findByTicker(order.getTicker())
-                .orElseThrow(() -> new RuntimeException("No holdings found for " + order.getTicker()));
-
-        double profit = (executedPrice - portfolio.getBuyPrice()) * order.getQuantity();
-        double profitPercentage = ((executedPrice - portfolio.getBuyPrice()) / portfolio.getBuyPrice()) * 100;
-
-        // Reduce or remove holdings
-        int remainingQty = portfolio.getQuantity() - order.getQuantity();
-        if (remainingQty <= 0) {
-            portfolioRepository.delete(portfolio);
-        } else {
-            portfolio.setQuantity(remainingQty);
-            portfolioRepository.save(portfolio);
-        }
-
-        order.setStatus(OrderStatus.EXECUTED);
-        order.setExecutedAt(LocalDateTime.now());
-        order.setExecutedPrice(executedPrice);
-        order.setProfit(profit);
-        order.setProfitPercentage(profitPercentage);
-        pendingOrderRepository.save(order);
     }
 }
