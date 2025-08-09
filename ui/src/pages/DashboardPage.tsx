@@ -60,7 +60,28 @@ const [portfolioData, setPortfolioData] = useState<Portfolio | null>(null);
   
   console.log(allOrders);
 
-  
+    const [symbolFilter, setSymbolFilter] = useState("");
+
+  // Get unique symbols for dropdown
+  const uniqueSymbols = [...new Set(allOrders.map(order => order.stockTicker))];
+
+  // Filtered orders
+  const filteredOrders = allOrders.filter(order =>
+    symbolFilter === "" ? true : order.stockTicker === symbolFilter
+  );
+
+  // At the top of your DashboardPage component, with other states:
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 5;
+
+// Sort and paginate once here:
+const sortedOrders = [...allOrders].sort(
+  (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+);
+const totalPages = Math.ceil(sortedOrders.length / itemsPerPage);
+const indexOfLastItem = currentPage * itemsPerPage;
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+const currentOrders = sortedOrders.slice(indexOfFirstItem, indexOfLastItem);
 
   // Mock portfolio data
   const [portfolio] = useState({
@@ -178,44 +199,59 @@ const [portfolioData, setPortfolioData] = useState<Portfolio | null>(null);
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Symbol</TableHead>
+                      <TableHead>
+                        Symbol
+                        <select
+                          value={symbolFilter}
+                          onChange={(e) => setSymbolFilter(e.target.value)}
+                          className="ml-2 border rounded px-1 text-base bg-background"
+                        >
+                          <option value="">All</option>
+                          {uniqueSymbols.map((symbol) => (
+                            <option key={symbol} value={symbol}>
+                              {symbol}
+                            </option>
+                          ))}
+                        </select>
+                      </TableHead>
                       <TableHead>Shares</TableHead>
-                      <TableHead>Avg Price</TableHead>
-                      <TableHead>Current Price</TableHead>
+                      <TableHead>Price Of Buying</TableHead>
                       <TableHead>Value</TableHead>
                       <TableHead>P&L</TableHead>
                       <TableHead>Change %</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    
-                    {allOrders.map((order) => {
 
+                  <TableBody>
+                    {filteredOrders.map((order) => {
                       const holding = {
                         symbol: order.stockTicker,
                         shares: order.volume,
                         priceOfBuying: order.priceOfBuying,
                       };
-                    
-                      const avgPrice = holding.priceOfBuying/holding.shares;
+
+                      const avgPrice = holding.priceOfBuying / holding.shares;
                       const value = calculateHoldingValue(holding.shares, holding.priceOfBuying);
                       const pnl = calculatePnL(holding.shares, avgPrice, holding.priceOfBuying);
                       const isPositive = pnl >= 0;
                       const change = ((holding.priceOfBuying - avgPrice) / avgPrice * 100).toFixed(2);
-                      
+
                       return (
-                        <TableRow key={holding.symbol}>
+                        <TableRow key={`${holding.symbol}-${order.id}`}>
                           <TableCell className="font-medium">{holding.symbol}</TableCell>
                           <TableCell>{holding.shares}</TableCell>
-                          <TableCell>${avgPrice.toFixed(2)}</TableCell>
                           <TableCell>${holding.priceOfBuying.toFixed(2)}</TableCell>
                           <TableCell>${value.toLocaleString()}</TableCell>
                           <TableCell className={pnl > 0 ? "text-gain" : "text-loss"}>
                             ${pnl.toFixed(2)}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={isPositive ? "default" : "destructive"} className={isPositive ? "bg-gain" : ""}>
-                              {isPositive ? "+" : ""}{change}%
+                            <Badge
+                              variant={isPositive ? "default" : "destructive"}
+                              className={isPositive ? "bg-gain" : ""}
+                            >
+                              {isPositive ? "+" : ""}
+                              {change}%
                             </Badge>
                           </TableCell>
                         </TableRow>
@@ -246,8 +282,7 @@ const [portfolioData, setPortfolioData] = useState<Portfolio | null>(null);
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {allOrders.map((order) => {
-
+                    {currentOrders.map((order) => {
                       const holding = {
                         symbol: order.stockTicker,
                         shares: order.volume,
@@ -255,33 +290,58 @@ const [portfolioData, setPortfolioData] = useState<Portfolio | null>(null);
                         buySell: order.buySell,
                         time: order.timestamp,
                       };
-                    
-                      const avgPrice = holding.priceOfBuying/holding.shares;
-                      const value = calculateHoldingValue(holding.shares, holding.priceOfBuying);
-                      const pnl = calculatePnL(holding.shares, avgPrice, holding.priceOfBuying);
-                      const isPositive = pnl >= 0;
-                      const change = ((holding.priceOfBuying - avgPrice) / avgPrice * 100).toFixed(2);
-                      
-                    // {recentTransactions.map((transaction) => (
-                    return (
-                      <TableRow key={holding.symbol}>
-                        <TableCell className="font-medium">{holding.symbol}</TableCell>
-                        <TableCell>
-                          <Badge variant={holding.buySell === 1 ? "default" : "secondary"}>
-                            {holding.buySell === 1 ? "BUY" : "SELL"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{holding.shares}</TableCell>
-                        <TableCell>${holding.priceOfBuying.toFixed(2)}</TableCell>
-                        <TableCell>${(holding.shares * holding.priceOfBuying).toLocaleString()}</TableCell>
-                        <TableCell>{new Date(holding.time).toISOString().slice(0, 10)}</TableCell>
-                      </TableRow>
-                    );})}
+                      return (
+                        <TableRow key={`${holding.symbol}-${order.id}`}>
+                          <TableCell className="font-medium">{holding.symbol}</TableCell>
+                          <TableCell>
+                            <Badge variant={holding.buySell === 1 ? "default" : "secondary"}>
+                              {holding.buySell === 1 ? "BUY" : "SELL"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{holding.shares}</TableCell>
+                          <TableCell>${holding.priceOfBuying.toFixed(2)}</TableCell>
+                          <TableCell>${(holding.shares * holding.priceOfBuying).toLocaleString()}</TableCell>
+                          <TableCell>{new Date(holding.time).toISOString().slice(0, 10)}</TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
+
+                {/* Pagination Controls */}
+                <div className="flex justify-center space-x-2 mt-4">
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1 border rounded ${
+                        currentPage === i + 1 ? "bg-blue-500 text-white" : ""
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
+
         </Tabs>
       </div>
     </div>
