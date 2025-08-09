@@ -15,7 +15,12 @@ public class OrdersService {
     
     @Autowired
     private OrdersRepository ordersRepository;
-    
+
+    public List<Orders> getAllOrders() {
+        return ordersRepository.findAll();
+    }
+
+
     public List<Orders> getTodayOrders() {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
