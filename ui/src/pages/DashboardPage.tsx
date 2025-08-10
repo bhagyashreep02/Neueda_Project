@@ -4,14 +4,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { TrendingUp, TrendingDown, DollarSign, PieChart, Plus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useNavigate } from "react-router-dom";
 import { Portal } from "vaul";
+import BuySellDialog from "@/pages/BuySellDialog"
 
 const DashboardPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<{ email: string } | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   
   interface Holding {
@@ -190,10 +193,7 @@ const currentOrders = sortedOrders.slice(indexOfFirstItem, indexOfLastItem);
                   <CardTitle>Current Holdings</CardTitle>
                   <CardDescription>Your active stock positions</CardDescription>
                 </div>
-                <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Position
-                </Button>
+                <BuySellDialog isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} />
               </CardHeader>
               <CardContent>
                 <Table>
