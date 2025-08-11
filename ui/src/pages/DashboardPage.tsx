@@ -66,8 +66,11 @@ const [portfolioData, setPortfolioData] = useState<Portfolio | null>(null);
     const [symbolFilter, setSymbolFilter] = useState("");
 
   // Get unique symbols for dropdown
-  const uniqueSymbols = [...new Set(allOrders.map(order => order.stockTicker))];
-
+  const uniqueSymbols = portfolioData
+  ? Object.keys(portfolioData.currentHoldings).filter(
+      symbol => portfolioData.currentHoldings[symbol].volume !== 0
+    )
+  : [];
   // Filtered orders
   const filteredOrders = allOrders.filter(order =>
     symbolFilter === "" ? true : order.stockTicker === symbolFilter
@@ -221,14 +224,22 @@ const currentOrders = sortedOrders.slice(indexOfFirstItem, indexOfLastItem);
                   </TableHeader>
 
                   <TableBody>
-                    {portfolioData && Object.entries(portfolioData.currentHoldings).map(([symbol, holding]) => {
-                      const shares = holding.volume;
-                      if (shares === 0) return null; // Skip if no shares
-                      const avgPrice = holding.priceOfBuying / shares;
-                      const value = calculateHoldingValue(shares, holding.priceOfBuying);
-                      const pnl = calculatePnL(shares, avgPrice, holding.priceOfBuying);
-                      const isPositive = pnl >= 0;
-                      const change = ((holding.priceOfBuying - avgPrice) / avgPrice * 100).toFixed(2);
+                    {portfolioData &&
+                    Object.entries(portfolioData.currentHoldings)
+                      .filter(([symbol, holding]) => {
+                        // Skip if no shares
+                        if (holding.volume === 0) return false;
+                        // Apply symbol filter if selected
+                        if (symbolFilter !== "" && symbol !== symbolFilter) return false;
+                        return true;
+                      })
+                      .map(([symbol, holding]) => {
+                        const shares = holding.volume;
+                        const avgPrice = holding.priceOfBuying / shares;
+                        const value = calculateHoldingValue(shares, holding.priceOfBuying);
+                        const pnl = calculatePnL(shares, avgPrice, holding.priceOfBuying);
+                        const isPositive = pnl >= 0;
+                        const change = ((holding.priceOfBuying - avgPrice) / avgPrice * 100).toFixed(2);
 
                       return (
                         <TableRow key={`${symbol}`}>
