@@ -1,4 +1,5 @@
 package com.sj.springboot.rest_api.service;
+import java.util.Optional;
 
 import com.sj.springboot.rest_api.controller.StockFetcherService;
 import com.sj.springboot.rest_api.dto.TransactRequest;
@@ -42,7 +43,7 @@ public class TransactServiceImpl implements TransactService {
 
         // SELL: check if we have enough shares
         if ("SELL".equalsIgnoreCase(request.getType())) {
-            Portfolio portfolio = portfolioRepository.findByTicker(request.getTicker())
+            Portfolio portfolio = portfolioRepository.findByStockTicker(request.getTicker())
                     .orElseThrow(() -> new RuntimeException("No holdings for ticker: " + request.getTicker()));
             if (portfolio.getQuantity() < request.getQuantity()) {
                 throw new RuntimeException("Not enough shares to sell");

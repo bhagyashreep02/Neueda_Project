@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
     // Already existing
-    List<Portfolio> findByStockTicker(String stockTicker);
+//    List<Portfolio> findByStockTicker(String stockTicker);
 
     @Query("SELECT DISTINCT p.stockTicker FROM Portfolio p")
     List<String> findDistinctStockTickers();
@@ -31,7 +31,10 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     @Query("SELECT SUM(p.priceOfBuying * p.volume) FROM Portfolio p")
     BigDecimal getTotalInvestmentValue();
 
-    Optional<Portfolio> findByTicker(String ticker);
+//    Optional<Portfolio> findByStockTicker(String stockTicker);
+    Optional<Portfolio> findByStockTicker(String stockTicker);
+
+
 
     // 🔹 NEW: Delete all holdings for a ticker (used when selling all shares)
     void deleteByStockTicker(String stockTicker);
