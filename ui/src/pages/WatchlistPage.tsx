@@ -17,7 +17,7 @@ const WatchlistPage = () => {
 
   const [ticker, setTicker] = useState("");
   const [price, setPrice] = useState("");
-  const [prediction, setPrediction] = useState<Prediction | null>(null);
+  const [prediction, setPrediction] = useState<Record<string, Prediction>>({});
 
   interface Prediction {
     predicted_next_open_price: number,
@@ -39,22 +39,29 @@ const WatchlistPage = () => {
       if (!res.ok) throw new Error("Failed to fetch watchlist");
       const data = await res.json();
       setWatchlist(data);
-      fetchPrediction(); // Fetch prediction after watchlist is loaded
+      fetchPredictions(data.map((stock: { ticker: string }) => stock.ticker)); // Fetch prediction after watchlist is loaded
     } catch (err) {
       toast({ title: "Error", description: String(err), variant: "destructive" });
     }
   };
+  console.log(prediction)
 
-  const fetchPrediction = async () => {
-    try {
-      const res = await fetch(`http://localhost:8080/predict?symbol=${encodeURIComponent(ticker)}`);
-      if (!res.ok) throw new Error("Failed to fetch prediction");
+  const fetchPredictions = async (symbols: string[]) => {
+  try {
+    const predictionsData: Record<string, Prediction> = {};
+
+    for (const sym of symbols) {
+      const res = await fetch(`http://localhost:8080/predict?symbol=${encodeURIComponent(sym)}`);
+      if (!res.ok) throw new Error(`Failed to fetch prediction for ${sym}`);
       const data = await res.json();
-      setPrediction(data);
-    } catch (err) {
-      toast({ title: "Error", description: String(err), variant: "destructive" });
+      predictionsData[sym] = data;
     }
-  };
+
+    setPrediction(predictionsData);
+  } catch (err) {
+    toast({ title: "Error", description: String(err), variant: "destructive" });
+  }
+};
   console.log(prediction);
 
   const handleSignOut = () => {
@@ -148,7 +155,6 @@ const WatchlistPage = () => {
                   <TableHead>Symbol</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Prediction</TableHead>
-                  <TableHead>Previous Closing Values</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -157,8 +163,16 @@ const WatchlistPage = () => {
                   <TableRow key={stock.ticker}>
                     <TableCell className="font-medium">{stock.ticker}</TableCell>
                     <TableCell>${stock.price}</TableCell>
-                    <TableCell>{prediction.predicted_next_open_price}</TableCell>
-                    <TableCell>{prediction.last_10_open_prices}</TableCell>
+                    <TableCell>
+                      {prediction[stock.ticker] ? (
+                        <div>
+                          <p>Next Open: ${prediction[stock.ticker].predicted_next_open_price}</p>
+                          <p>Last 10 Opens: {prediction[stock.ticker].last_10_open_prices.join(", ")}</p>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">Loading...</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
