@@ -95,7 +95,7 @@ const BuySellDialog = ({ isOpen, setIsOpen }) => {
             />
             <div className="flex justify-between">
               <Button variant="secondary" onClick={() => setStep(1)}>Back</Button>
-              <Button onClick={handleTransact} className="bg-gain">
+              <Button onClick={async () => { await handleTransact(); location.reload(); }} className="bg-gain">
                 Confirm {action}
               </Button>
             </div>
