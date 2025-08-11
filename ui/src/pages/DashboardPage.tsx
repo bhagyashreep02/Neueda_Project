@@ -18,8 +18,8 @@ const DashboardPage = () => {
   
   
   interface Holding {
-  ticker: string;
-  quantity: number;
+  volume: number;
+  priceOfBuying: number;
 }
   
   interface Portfolio {
@@ -61,7 +61,7 @@ const [portfolioData, setPortfolioData] = useState<Portfolio | null>(null);
     fetchOrders();
   }, []);
   
-  console.log(allOrders);
+
 
     const [symbolFilter, setSymbolFilter] = useState("");
 
@@ -162,9 +162,7 @@ const currentOrders = sortedOrders.slice(indexOfFirstItem, indexOfLastItem);
               <PieChart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{portfolioData?.currentHoldings
-                ? Object.keys(portfolioData.currentHoldings).length
-                : 'Loading...'}</div>
+              <div className="text-2xl font-bold">{portfolioData?.currentHoldings? Object.values(portfolioData.currentHoldings).filter(h => h.volume !== 0).length: 'Loading...'}</div>
               <p className="text-xs text-muted-foreground">Active positions</p>
             </CardContent>
           </Card>
@@ -223,23 +221,19 @@ const currentOrders = sortedOrders.slice(indexOfFirstItem, indexOfLastItem);
                   </TableHeader>
 
                   <TableBody>
-                    {filteredOrders.map((order) => {
-                      const holding = {
-                        symbol: order.stockTicker,
-                        shares: order.volume,
-                        priceOfBuying: order.priceOfBuying,
-                      };
-
-                      const avgPrice = holding.priceOfBuying / holding.shares;
-                      const value = calculateHoldingValue(holding.shares, holding.priceOfBuying);
-                      const pnl = calculatePnL(holding.shares, avgPrice, holding.priceOfBuying);
+                    {portfolioData && Object.entries(portfolioData.currentHoldings).map(([symbol, holding]) => {
+                      const shares = holding.volume;
+                      if (shares === 0) return null; // Skip if no shares
+                      const avgPrice = holding.priceOfBuying / shares;
+                      const value = calculateHoldingValue(shares, holding.priceOfBuying);
+                      const pnl = calculatePnL(shares, avgPrice, holding.priceOfBuying);
                       const isPositive = pnl >= 0;
                       const change = ((holding.priceOfBuying - avgPrice) / avgPrice * 100).toFixed(2);
 
                       return (
-                        <TableRow key={`${holding.symbol}-${order.id}`}>
-                          <TableCell className="font-medium">{holding.symbol}</TableCell>
-                          <TableCell>{holding.shares}</TableCell>
+                        <TableRow key={`${symbol}`}>
+                          <TableCell className="font-medium">{symbol}</TableCell>
+                          <TableCell>{shares}</TableCell>
                           <TableCell>${holding.priceOfBuying.toFixed(2)}</TableCell>
                           <TableCell>${value.toLocaleString()}</TableCell>
                           <TableCell className={pnl > 0 ? "text-gain" : "text-loss"}>
