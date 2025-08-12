@@ -122,7 +122,7 @@ const currentOrders = sortedOrders.slice(indexOfFirstItem, indexOfLastItem);
     localStorage.removeItem('userEmail');
     navigate('/');
   };
-
+  
   const calculateHoldingValue = (shares: number, price: number) => shares * price;
   const calculatePnL = (shares: number, avgPrice: number, currentPrice: number) => 
     shares * (currentPrice - avgPrice);

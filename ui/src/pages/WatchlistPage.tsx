@@ -154,7 +154,7 @@ const WatchlistPage = () => {
                 <TableRow>
                   <TableHead>Symbol</TableHead>
                   <TableHead>Price</TableHead>
-                  <TableHead>Prediction</TableHead>
+                  <TableHead>Prediction For Next Open</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -166,8 +166,7 @@ const WatchlistPage = () => {
                     <TableCell>
                       {prediction[stock.ticker] ? (
                         <div>
-                          <p>Next Open: ${prediction[stock.ticker].predicted_next_open_price}</p>
-                          <p>Last 10 Opens: {prediction[stock.ticker].last_10_open_prices.join(", ")}</p>
+                          <p>${prediction[stock.ticker].predicted_next_open_price}</p>
                         </div>
                       ) : (
                         <span className="text-muted-foreground">Loading...</span>
