@@ -223,7 +223,7 @@ console.log(buySellData);
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Area type="monotone" dataKey="volume" stroke="#8884d8" fill="#8884d8" />
+              <Area type="monotone" dataKey="volume" stroke="#16A249" fill="#16A249" />
             </AreaChart>
           </ResponsiveContainer>
           </CardContent>
@@ -266,7 +266,7 @@ console.log(buySellData);
               <YAxis />
               <Tooltip formatter={(val) => `$${val.toLocaleString()}`} />
               <Legend />
-              <Bar dataKey="value" fill="#9874e0ff" />
+              <Bar dataKey="value" fill="#16A249" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
