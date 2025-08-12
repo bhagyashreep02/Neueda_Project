@@ -9,7 +9,11 @@ import { TrendingUp, TrendingDown, DollarSign, PieChart, Plus } from "lucide-rea
 import Navbar from "@/components/Navbar";
 import { useNavigate } from "react-router-dom";
 import { Portal } from "vaul";
-import BuySellDialog from "@/pages/BuySellDialog"
+import BuySellDialog from "@/pages/BuySellDialog";
+import { ResponsiveContainer, Pie, Cell, Tooltip } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
+import { AreaChart, Area , BarChart, Bar, Treemap} from "recharts";
+
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -127,6 +131,32 @@ const currentOrders = sortedOrders.slice(indexOfFirstItem, indexOfLastItem);
   const calculatePnL = (shares: number, avgPrice: number, currentPrice: number) => 
     shares * (currentPrice - avgPrice);
 
+  const COLORS = ["#1f7ae3ff", "#FF8042"];
+
+const buySellData = [
+  { name: "Buy Orders", value: Number(allOrders.filter(o => o.buySell === 1).length )},
+  { name: "Sell Orders", value: Number(allOrders.filter(o => o.buySell === 0).length )}
+];
+
+console.log(buySellData);
+
+  const volumePerDay = allOrders.reduce((acc, order) => {
+  const date = new Date(order.timestamp).toLocaleDateString();
+  if (!acc[date]) acc[date] = 0;
+  acc[date] += order.volume;
+  return acc;
+}, {});
+  const volumeData = Object.entries(volumePerDay).map(([date, volume]) => ({ date, volume }));
+
+  const allocationData = portfolioData
+  ? Object.entries(portfolioData.currentHoldings).map(([symbol, holding]) => ({
+      name: symbol,
+      value: holding.volume * holding.priceOfBuying
+    }))
+  : [];
+
+  console.log(allocationData);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar user={user} onSignOut={handleSignOut} />
@@ -179,7 +209,71 @@ const currentOrders = sortedOrders.slice(indexOfFirstItem, indexOfLastItem);
               <div className="text-2xl font-bold">{portfolioData?.currentMarketValue}</div>
             </CardContent>
           </Card>
+
+        <Card className="bg-[var(--gradient-card)] border-border/50">
+          <CardContent>
+            <CardHeader>
+            <CardTitle>Transaction Volume Over Time</CardTitle>
+            <CardDescription>Show how many trades happened each day (both buys and sells).
+            </CardDescription>
+          </CardHeader>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={volumeData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Area type="monotone" dataKey="volume" stroke="#8884d8" fill="#8884d8" />
+            </AreaChart>
+          </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-[var(--gradient-card)] border-border/50">
+          <CardContent>
+          <CardHeader>
+            <CardTitle>Buy vs Sell Distribution</CardTitle>
+            <CardDescription>Show proportion of buy vs sell orders.</CardDescription>
+          </CardHeader>
+          {buySellData.length > 0 && (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              layout="vertical"
+              data={buySellData}
+              margin={{ top: 20, right: 30, left: 50, bottom: 5 }}
+            >
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="name" />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="value" fill={COLORS[0]} name="Orders" />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+        </CardContent>
+        </Card>
+
+        <Card className="bg-[var(--gradient-card)] border-border/50">
+        <CardContent>
+          <CardHeader>
+            <CardTitle>Portfolio Allocation By Stock</CardTitle>
+            <CardDescription>This chart displays the distribution of investments across different stocks in the portfolio, showing the total value (in USD) held for each ticker.</CardDescription>
+          </CardHeader>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={allocationData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip formatter={(val) => `$${val.toLocaleString()}`} />
+              <Legend />
+              <Bar dataKey="value" fill="#9874e0ff" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+        </Card>
+
         </div>
+
 
         <Tabs defaultValue="holdings" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 bg-muted/50">
