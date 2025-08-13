@@ -1,6 +1,6 @@
 FROM amazoncorretto:17
 
-ADD target/*.jar app.jar
+ADD target/neu_test-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
